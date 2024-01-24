@@ -4975,12 +4975,7 @@ static SDValue lowerVECTOR_SHUFFLE(SDValue Op, SelectionDAG &DAG,
 
   // As a backup, shuffles can be lowered via a vrgather instruction, possibly
   // merged with a second vrgather.
-  SmallVector<SDValue> GatherIndicesLHS, GatherIndicesRHS;
-
-  // Keep a track of which non-undef indices are used by each LHS/RHS shuffle
-  // half.
-  DenseMap<int, unsigned> LHSIndexCounts, RHSIndexCounts;
-
+  SmallVector<int> ShuffleMaskLHS, ShuffleMaskRHS;
   SmallVector<SDValue> MaskVals;
 
   // Now construct the mask that will be used by the blended vrgather operation.
@@ -4989,28 +4984,20 @@ static SDValue lowerVECTOR_SHUFFLE(SDValue Op, SelectionDAG &DAG,
     bool SelectMaskVal = (MaskIndex < (int)NumElts) ^ !SwapOps;
     MaskVals.push_back(DAG.getConstant(SelectMaskVal, DL, XLenVT));
     bool IsLHSOrUndefIndex = MaskIndex < (int)NumElts;
-    GatherIndicesLHS.push_back(IsLHSOrUndefIndex && MaskIndex >= 0
-                               ? DAG.getConstant(MaskIndex, DL, XLenVT)
-                               : DAG.getUNDEF(XLenVT));
-    GatherIndicesRHS.push_back(
-                               IsLHSOrUndefIndex ? DAG.getUNDEF(XLenVT)
-                               : DAG.getConstant(MaskIndex - NumElts, DL, XLenVT));
-    if (IsLHSOrUndefIndex && MaskIndex >= 0)
-      ++LHSIndexCounts[MaskIndex];
-    if (!IsLHSOrUndefIndex)
-      ++RHSIndexCounts[MaskIndex - NumElts];
+    ShuffleMaskLHS.push_back(IsLHSOrUndefIndex && MaskIndex >= 0
+                             ? MaskIndex : -1);
+    ShuffleMaskRHS.push_back(IsLHSOrUndefIndex ? -1 : (MaskIndex - NumElts));
   }
 
   if (SwapOps) {
     std::swap(V1, V2);
-    std::swap(GatherIndicesLHS, GatherIndicesRHS);
+    std::swap(ShuffleMaskLHS, ShuffleMaskRHS);
   }
 
   assert(MaskVals.size() == NumElts && "Unexpected select-like shuffle");
   MVT MaskVT = MVT::getVectorVT(MVT::i1, NumElts);
   SDValue SelectMask = DAG.getBuildVector(MaskVT, DL, MaskVals);
 
-  unsigned GatherVXOpc = RISCVISD::VRGATHER_VX_VL;
   unsigned GatherVVOpc = RISCVISD::VRGATHER_VV_VL;
   MVT IndexVT = VT.changeTypeToInteger();
   // Since we can't introduce illegal index types at this stage, use i16 and
