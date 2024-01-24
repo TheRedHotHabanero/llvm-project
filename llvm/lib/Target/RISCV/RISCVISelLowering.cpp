@@ -4998,26 +4998,30 @@ static SDValue lowerVECTOR_SHUFFLE(SDValue Op, SelectionDAG &DAG,
   MVT MaskVT = MVT::getVectorVT(MVT::i1, NumElts);
   SDValue SelectMask = DAG.getBuildVector(MaskVT, DL, MaskVals);
 
-  unsigned GatherVVOpc = RISCVISD::VRGATHER_VV_VL;
-  MVT IndexVT = VT.changeTypeToInteger();
-  // Since we can't introduce illegal index types at this stage, use i16 and
-  // vrgatherei16 if the corresponding index type for plain vrgather is greater
-  // than XLenVT.
-  if (IndexVT.getScalarType().bitsGT(XLenVT)) {
-    GatherVVOpc = RISCVISD::VRGATHEREI16_VV_VL;
-    IndexVT = IndexVT.changeVectorElementType(MVT::i16);
-  }
+  // Base case for the recursion just below - handle the worst case
+  // single source permutation.  Note that all the splat variants
+  // are handled above.
+  if (V2.isUndef()) {
+    unsigned GatherVVOpc = RISCVISD::VRGATHER_VV_VL;
+    MVT IndexVT = VT.changeTypeToInteger();
+    // Since we can't introduce illegal index types at this stage, use i16 and
+    // vrgatherei16 if the corresponding index type for plain vrgather is greater
+    // than XLenVT.
+    if (IndexVT.getScalarType().bitsGT(XLenVT)) {
+      GatherVVOpc = RISCVISD::VRGATHEREI16_VV_VL;
+      IndexVT = IndexVT.changeVectorElementType(MVT::i16);
+    }
 
-  // If the mask allows, we can do all the index computation in 16 bits.  This
-  // requires less work and less register pressure at high LMUL, and creates
-  // smaller constants which may be cheaper to materialize.
-  if (IndexVT.getScalarType().bitsGT(MVT::i16) && isUInt<16>(NumElts - 1) &&
-      (IndexVT.getSizeInBits() / Subtarget.getRealMinVLen()) > 1) {
-    GatherVVOpc = RISCVISD::VRGATHEREI16_VV_VL;
-    IndexVT = IndexVT.changeVectorElementType(MVT::i16);
-  }
+    // If the mask allows, we can do all the index computation in 16 bits.  This
+    // requires less work and less register pressure at high LMUL, and creates
+    // smaller constants which may be cheaper to materialize.
+    if (IndexVT.getScalarType().bitsGT(MVT::i16) && isUInt<16>(NumElts - 1) &&
+        (IndexVT.getSizeInBits() / Subtarget.getRealMinVLen()) > 1) {
+      GatherVVOpc = RISCVISD::VRGATHEREI16_VV_VL;
+      IndexVT = IndexVT.changeVectorElementType(MVT::i16);
+    }
 
-  MVT IndexContainerVT =
+    MVT IndexContainerVT =
       ContainerVT.changeVectorElementType(IndexVT.getScalarType());
 
   SDValue Gather;
