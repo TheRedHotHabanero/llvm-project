@@ -1212,6 +1212,8 @@ Crash and bug fixes
 Improvements
 ^^^^^^^^^^^^
 
+- Support importing C++20 modules in clang-repl.
+
 Moved checkers
 ^^^^^^^^^^^^^^
 
