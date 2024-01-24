@@ -1726,8 +1726,8 @@ bool GCNHazardRecognizer::fixWMMAHazards(MachineInstr *MI) {
     if (!SIInstrInfo::isWMMA(I) && !SIInstrInfo::isSWMMAC(I))
       return false;
 
-    // Src0 or Src1 of the current wmma instruction overlaps with the dest of
-    // the previous wmma.
+    // Src0(matrix A) or Src1(matrix B) of the current wmma instruction overlaps
+    // with the dest(matrix D) of the previous wmma.
     const Register CurSrc0Reg =
         TII->getNamedOperand(*MI, AMDGPU::OpName::src0)->getReg();
     const Register CurSrc1Reg =
