@@ -791,7 +791,9 @@ Experimental extensions
     zicfilp             0.4       This is a long dummy description
     zicfiss             0.4
     zimop               0.1
+    zaamo               0.2
     zacas               1.0
+    zalrsc              0.2
     zfbfmin             1.0
     zcmop               0.2
     ztso                0.1
