@@ -1112,6 +1112,8 @@ RISC-V Support
 - ``__attribute__((rvv_vector_bits(N)))`` is now supported for RVV vbool*_t types.
 - ``-mtls-dialect=desc`` is now supported to enable TLS descriptors (TLSDESC).
 
+- ``__attribute__((rvv_vector_bits(N))) is now supported for RVV vbool*_t types.
+
 CUDA/HIP Language Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
