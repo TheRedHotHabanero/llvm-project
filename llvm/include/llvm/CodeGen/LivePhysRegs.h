@@ -31,7 +31,6 @@
 
 #include "llvm/ADT/SparseSet.h"
 #include "llvm/CodeGen/MachineBasicBlock.h"
-#include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/TargetRegisterInfo.h"
 #include "llvm/MC/MCRegister.h"
 #include "llvm/MC/MCRegisterInfo.h"
@@ -198,8 +197,6 @@ void computeAndAddLiveIns(LivePhysRegs &LiveRegs,
 /// any changes were made.
 static inline bool recomputeLiveIns(MachineBasicBlock &MBB) {
   LivePhysRegs LPR;
-  auto oldLiveIns = MBB.getLiveIns();
-
   MBB.clearLiveIns();
   computeAndAddLiveIns(LPR, MBB);
   MBB.sortUniqueLiveIns();
