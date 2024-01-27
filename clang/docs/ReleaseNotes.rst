@@ -219,6 +219,9 @@ C++2c Feature Support
 
 Resolutions to C++ Defect Reports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+- Substitute template parameter pack, when it is not explicitly specified
+  in the template parameters, but is deduced from a previous argument.
+  (`#78449: <https://github.com/llvm/llvm-project/issues/78449>`_).
 
 - Implemented `CWG2598 <https://wg21.link/CWG2598>`_ and `CWG2096 <https://wg21.link/CWG2096>`_,
   making unions (that have either no members or at least one literal member) literal types.
