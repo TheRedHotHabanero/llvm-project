@@ -52,6 +52,9 @@ module;
 export module a;
 
 //--- b.cppm
+// This is actually an ODR violation. But given https://github.com/llvm/llvm-project/issues/79240,
+// we don't count it as an ODR violation any more.
+// expected-no-diagnostics
 module;
 #include "bar.h"
 export module b;

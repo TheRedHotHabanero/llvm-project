@@ -63,6 +63,9 @@ export module mod3;
 export using std::align_val_t;
 
 //--- mod4.cppm
+// This is actually an ODR violation. But given https://github.com/llvm/llvm-project/issues/79240,
+// we don't count it as an ODR violation now.
+// expected-no-diagnostics
 module;
 #include "signed_size_t.h"
 #include "csize_t"

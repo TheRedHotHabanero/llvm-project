@@ -103,3 +103,10 @@ void foo() {
 
     __fn{}(U<int>(), U<int>());
 }
+
+#ifdef DIFFERENT
+// expected-error@B.cppm:* {{call to object of type '__fn' is ambiguous}}
+// expected-note@* 1+{{candidate function}}
+#else
+// expected-no-diagnostics
+#endif
