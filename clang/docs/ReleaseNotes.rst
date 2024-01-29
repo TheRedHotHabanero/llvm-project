@@ -1241,6 +1241,8 @@ Sanitizers
 Python Binding Changes
 ----------------------
 
+- Exposed `CXRewriter` API as `class Rewriter`.
+
 Additional Information
 ======================
 
