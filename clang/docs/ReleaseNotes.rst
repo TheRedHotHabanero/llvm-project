@@ -833,6 +833,8 @@ Bug Fixes in This Version
   for logical operators in C23.
   Fixes (`#64356 <https://github.com/llvm/llvm-project/issues/64356>`_).
 
+- Fixed missing warnings when doing bool-like conversions in C23 (`#79435 <https://github.com/llvm/llvm-project/issues/79435>`_).
+
 Bug Fixes to Compiler Builtins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
