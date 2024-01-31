@@ -1243,6 +1243,9 @@ Improvements
 
 - Support importing C++20 modules in clang-repl.
 
+- Added support for ``TypeLoc::dump()`` for easier debugging, and improved
+  textual and JSON dumping for various ``TypeLoc``-related nodes.
+
 Moved checkers
 ^^^^^^^^^^^^^^
 
