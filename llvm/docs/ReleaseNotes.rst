@@ -156,6 +156,7 @@ Changes to the RISC-V Backend
 * The Smepmp 1.0 extension is now supported.
 * ``-mcpu=sifive-p670`` was added.
 * Support for the Zicond extension is no longer experimental.
+* Added assembler/disassembler support for the experimental Zabha (Byte and Halfword Atomic Memory Operations) extension.
 
 Changes to the WebAssembly Backend
 ----------------------------------
