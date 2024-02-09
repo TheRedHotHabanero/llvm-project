@@ -1741,7 +1741,7 @@ def : ProcessorModel<"ampere1", Ampere1Model, ProcessorFeatures.Ampere1,
 def : ProcessorModel<"ampere1a", Ampere1Model, ProcessorFeatures.Ampere1A,
                      [TuneAmpere1A]>;
 
-def : ProcessorModel<"ampere1b", Ampere1Model, ProcessorFeatures.Ampere1B,
+def : ProcessorModel<"ampere1b", Ampere1BModel, ProcessorFeatures.Ampere1B,
                      [TuneAmpere1B]>;
 
 //===----------------------------------------------------------------------===//

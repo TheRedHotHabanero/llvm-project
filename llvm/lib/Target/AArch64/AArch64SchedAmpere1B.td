@@ -11,18 +11,18 @@
 //
 //===----------------------------------------------------------------------===//
 
-// The Ampere-1B core is an out-of-order micro-architecture.  The front
+// The Ampere-1 core is an out-of-order micro-architecture.  The front
 // end has branch prediction, with a 10-cycle recovery time from a
 // mispredicted branch.  Instructions coming out of the front end are
 // decoded into internal micro-ops (uops).
 
 def Ampere1BModel : SchedMachineModel {
-  let IssueWidth            =  12;  // Maximum micro-ops dispatch rate.
+  let IssueWidth            =   4;  // 4-way decode and dispatch
   let MicroOpBufferSize     = 192;  // micro-op re-order buffer size
   let LoadLatency           =   3;  // Optimistic load latency
   let MispredictPenalty     =  10;  // Branch mispredict penalty
   let LoopMicroOpBufferSize =  32;  // Instruction queue size
-  let CompleteModel         =   1;
+  let CompleteModel = 0;
 
   list<Predicate> UnsupportedFeatures = !listconcat(SVEUnsupported.F,
                                                     SMEUnsupported.F,
@@ -32,7 +32,11 @@ def Ampere1BModel : SchedMachineModel {
 let SchedModel = Ampere1BModel in {
 
 //===----------------------------------------------------------------------===//
-// Define each kind of processor resource and number available on Ampere-1B.
+// Define each kind of processor resource and number available on Ampere-1.
+// Ampere-1 has 12 pipelines that 8 independent scheduler (4 integer, 2 FP,
+// and 2 memory) issue into.  The integer and FP schedulers can each issue
+// one uop per cycle, while the memory schedulers can each issue one load
+// and one store address calculation per cycle.
 
 def Ampere1BUnitA  : ProcResource<2>;  // integer single-cycle, branch, and flags r/w
 def Ampere1BUnitB  : ProcResource<2>;  // integer single-cycle, and complex shifts
@@ -126,13 +130,6 @@ def Ampere1BWrite_2cyc_1B_1S_1AB : SchedWriteRes<[Ampere1BUnitB,
   let NumMicroOps = 3;
 }
 
-def Ampere1BWrite_2cyc_1S_2Z : SchedWriteRes<[Ampere1BUnitS,
-                                              Ampere1BUnitZ,
-                                              Ampere1BUnitZ]> {
-  let Latency = 2;
-  let NumMicroOps = 3;
-}
-
 def Ampere1BWrite_2cyc_1XY : SchedWriteRes<[Ampere1BUnitXY]> {
   let Latency = 2;
   let NumMicroOps = 1;
@@ -196,11 +193,6 @@ def Ampere1BWrite_4cyc_1L : SchedWriteRes<[Ampere1BUnitL]> {
   let NumMicroOps = 1;
 }
 
-def Ampere1BWrite_4cyc_2L : SchedWriteRes<[Ampere1BUnitL, Ampere1BUnitL]> {
-  let Latency = 4;
-  let NumMicroOps = 2;
-}
-
 def Ampere1BWrite_4cyc_1L_1B : SchedWriteRes<[Ampere1BUnitL, Ampere1BUnitB]> {
   let Latency = 4;
   let NumMicroOps = 2;
@@ -227,23 +219,19 @@ def Ampere1BWrite_5cyc_1BS : SchedWriteRes<[Ampere1BUnitBS]> {
 }
 
 def Ampere1BWrite_4cyc_1XY_1S_1Z : SchedWriteRes<[Ampere1BUnitXY,
-                                                  Ampere1BUnitS,
+                                                  Ampere1BUnitS
                                                   Ampere1BUnitZ]> {
   let Latency = 4;
   let NumMicroOps = 3;
 }
 
-def Ampere1BWrite_4cyc_3S_3Z : SchedWriteRes<[Ampere1BUnitS, Ampere1BUnitS,
-                                              Ampere1BUnitS, Ampere1BUnitZ,
-                                              Ampere1BUnitZ, Ampere1BUnitZ]> {
-  let Latency = 4;
-  let NumMicroOps = 6;
+def Ampere1BWrite_5cyc_1BS : SchedWriteRes<[Ampere1BUnitBS]> {
+  let Latency = 5;
+  let NumMicroOps = 1;
 }
 
-def Ampere1BWrite_5cyc_4S_4Z : SchedWriteRes<[Ampere1BUnitS, Ampere1BUnitS,
-                                              Ampere1BUnitS, Ampere1BUnitS,
-                                              Ampere1BUnitZ, Ampere1BUnitZ,
-                                              Ampere1BUnitZ, Ampere1BUnitZ]> {
+def Ampere1BWrite_5cyc_4S_4Z : SchedWriteRes<[Ampere1BUnitL,
+                                              Ampere1BUnitBS]> {
   let Latency = 5;
   let NumMicroOps = 8;
 }
@@ -292,17 +280,6 @@ def Ampere1BWrite_6cyc_1BS_2A : SchedWriteRes<[Ampere1BUnitBS, Ampere1BUnitA,
   let NumMicroOps = 3;
 }
 
-def Ampere1BWrite_6cyc_1L_1XY : SchedWriteRes<[Ampere1BUnitL, Ampere1BUnitXY]> {
-  let Latency = 6;
-  let NumMicroOps = 2;
-}
-
-def Ampere1BWrite_6cyc_2L_2XY : SchedWriteRes<[Ampere1BUnitL,  Ampere1BUnitL,
-                                               Ampere1BUnitXY, Ampere1BUnitXY]> {
-  let Latency = 6;
-  let NumMicroOps = 4;
-}
-
 def Ampere1BWrite_6cyc_1X : SchedWriteRes<[Ampere1BUnitX]> {
   let Latency = 6;
   let NumMicroOps = 2;
@@ -343,26 +320,6 @@ def Ampere1BWrite_7cyc_1XY_1Z : SchedWriteRes<[Ampere1BUnitXY, Ampere1BUnitZ]> {
   let NumMicroOps = 2;
 }
 
-def Ampere1BWrite_7cyc_1X_1Z : SchedWriteRes<[Ampere1BUnitX, Ampere1BUnitZ]> {
-  let Latency = 7;
-  let NumMicroOps = 2;
-}
-
-def Ampere1BWrite_7cyc_3L_3XY : SchedWriteRes<[Ampere1BUnitL,  Ampere1BUnitL,
-                                               Ampere1BUnitL,  Ampere1BUnitXY,
-                                               Ampere1BUnitXY, Ampere1BUnitXY]> {
-  let Latency = 7;
-  let NumMicroOps = 6;
-}
-
-def Ampere1BWrite_7cyc_4L_4XY : SchedWriteRes<[Ampere1BUnitL,  Ampere1BUnitL,
-                                               Ampere1BUnitL,  Ampere1BUnitL,
-                                               Ampere1BUnitXY, Ampere1BUnitXY,
-                                               Ampere1BUnitXY, Ampere1BUnitXY]> {
-  let Latency = 7;
-  let NumMicroOps = 8;
-}
-
 def Ampere1BWrite_7cyc_4XY_4S_4Z : SchedWriteRes<[Ampere1BUnitXY, Ampere1BUnitXY,
                                                   Ampere1BUnitXY, Ampere1BUnitXY,
                                                   Ampere1BUnitS,  Ampere1BUnitS,
@@ -381,28 +338,6 @@ def Ampere1BWrite_8cyc_1BS_1L : SchedWriteRes<[Ampere1BUnitBS, Ampere1BUnitL]> {
 def Ampere1BWrite_8cyc_1BS_1XY : SchedWriteRes<[Ampere1BUnitBS, Ampere1BUnitXY]> {
   let Latency = 8;
   let NumMicroOps = 2;
-}
-
-def Ampere1BWrite_8cyc_2L_3XY : SchedWriteRes<[Ampere1BUnitL,  Ampere1BUnitL,
-                                               Ampere1BUnitXY, Ampere1BUnitXY,
-                                               Ampere1BUnitXY]> {
-  let Latency = 8;
-  let NumMicroOps = 5;
-}
-
-def Ampere1BWrite_8cyc_3L_3XY : SchedWriteRes<[Ampere1BUnitL,  Ampere1BUnitL,
-                                               Ampere1BUnitL,  Ampere1BUnitXY,
-                                               Ampere1BUnitXY, Ampere1BUnitXY]> {
-  let Latency = 8;
-  let NumMicroOps = 6;
-}
-
-def Ampere1BWrite_8cyc_4L_4XY : SchedWriteRes<[Ampere1BUnitL,  Ampere1BUnitL,
-                                               Ampere1BUnitL,  Ampere1BUnitL,
-                                               Ampere1BUnitXY, Ampere1BUnitXY,
-                                               Ampere1BUnitXY, Ampere1BUnitXY]> {
-  let Latency = 8;
-  let NumMicroOps = 8;
 }
 
 def Ampere1BWrite_8cyc_2XY : SchedWriteRes<[Ampere1BUnitXY, Ampere1BUnitXY]> {
@@ -437,13 +372,6 @@ def Ampere1BWrite_9cyc_1A_1BS_1XY : SchedWriteRes<[Ampere1BUnitA, Ampere1BUnitBS
   let NumMicroOps = 3;
 }
 
-def Ampere1BWrite_9cyc_3L_3XY : SchedWriteRes<[Ampere1BUnitL,  Ampere1BUnitL,
-                                               Ampere1BUnitL,  Ampere1BUnitXY,
-                                               Ampere1BUnitXY, Ampere1BUnitXY]> {
-  let Latency = 9;
-  let NumMicroOps = 6;
-}
-
 def Ampere1BWrite_9cyc_1X : SchedWriteRes<[Ampere1BUnitX]> {
   let Latency = 9;
   let NumMicroOps = 1;
@@ -454,25 +382,9 @@ def Ampere1BWrite_9cyc_3XY : SchedWriteRes<[Ampere1BUnitXY, Ampere1BUnitXY, Ampe
   let NumMicroOps = 3;
 }
 
-def Ampere1BWrite_10cyc_4L_8XY : SchedWriteRes<[Ampere1BUnitL,  Ampere1BUnitL,
-                                                Ampere1BUnitL,  Ampere1BUnitL,
-                                                Ampere1BUnitXY, Ampere1BUnitXY,
-                                                Ampere1BUnitXY, Ampere1BUnitXY]> {
-  let Latency = 10;
-  let NumMicroOps = 12;
-}
-
 def Ampere1BWrite_11cyc_1BS_2XY : SchedWriteRes<[Ampere1BUnitBS, Ampere1BUnitXY, Ampere1BUnitXY]> {
   let Latency = 11;
   let NumMicroOps = 3;
-}
-
-def Ampere1BWrite_11cyc_4L_8XY : SchedWriteRes<[Ampere1BUnitL,  Ampere1BUnitL,
-                                                Ampere1BUnitL,  Ampere1BUnitL,
-                                                Ampere1BUnitXY, Ampere1BUnitXY,
-                                                Ampere1BUnitXY, Ampere1BUnitXY]> {
-  let Latency = 11;
-  let NumMicroOps = 12;
 }
 
 def Ampere1BWrite_12cyc_1X : SchedWriteRes<[Ampere1BUnitX]> {
@@ -526,14 +438,14 @@ def Ampere1BWrite_63cyc_1X : SchedWriteRes<[Ampere1BUnitX]> {
 // which are a single uop, and for extended registers, which have full flexibility
 // across Unit A or B for both uops.
 def Ampere1BWrite_Arith : SchedWriteVariant<[
-                                SchedVar<RegExtendedPred, [Ampere1BWrite_2cyc_2AB]>,
-                                SchedVar<IsCheapLSL,      [Ampere1BWrite_1cyc_1AB]>,
-                                SchedVar<NoSchedPred,     [Ampere1BWrite_2cyc_1B_1AB]>]>;
+                                SchedVar<RegExtendedPred, [Ampere1Write_2cyc_2AB]>,
+                                SchedVar<IsCheapLSL,      [Ampere1Write_1cyc_1AB]>,
+                                SchedVar<NoSchedPred,     [Ampere1Write_2cyc_1B_1AB]>]>;
 
 def Ampere1BWrite_ArithFlagsetting : SchedWriteVariant<[
-                                SchedVar<RegExtendedPred, [Ampere1BWrite_2cyc_2AB]>,
-                                SchedVar<IsCheapLSL,      [Ampere1BWrite_1cyc_1AB]>,
-                                SchedVar<NoSchedPred,     [Ampere1BWrite_2cyc_1B_1AB]>]>;
+                                SchedVar<RegExtendedPred, [Ampere1Write_2cyc_2AB]>,
+                                SchedVar<IsCheapLSL,      [Ampere1Write_1cyc_1AB]>,
+                                SchedVar<NoSchedPred,     [Ampere1Write_2cyc_1B_1AB]>]>;
 
 //===----------------------------------------------------------------------===//
 // Map the target-defined scheduler read/write resources and latencies for Ampere-1.
@@ -560,11 +472,11 @@ def : WriteRes<WriteID64,  [Ampere1BUnitBS, Ampere1BUnitX]> {
 def : WriteRes<WriteIM32,  [Ampere1BUnitBS]> {
   let Latency = 3;
 }  // 32-bit Multiply
-def : WriteRes<WriteIM64,  [Ampere1BUnitBS, Ampere1BUnitAB]> {
+def : WriteRes<WriteIM64,  [Ampere1BUnitBS, Ampere1UnitAB]> {
   let Latency = 3;
 }  // 64-bit Multiply
 def : WriteRes<WriteBr,    [Ampere1BUnitA]>;
-def : WriteRes<WriteBrReg, [Ampere1BUnitA, Ampere1BUnitA]>;
+def : WriteRes<WriteBrReg, [Ampere1BUnitA, Ampere1UnitA]>;
 def : WriteRes<WriteLD,    [Ampere1BUnitL]> {
   let Latency = 3;
 }  // Load from base addr plus immediate offset
@@ -651,10 +563,11 @@ def : InstRW<[Ampere1BWrite_1cyc_1A],
 def : InstRW<[Ampere1BWrite_1cyc_2A], (instrs BLR)>;
 
 // Common Short Sequence Compression (CSSC)
-def : InstRW<[Ampere1BWrite_1cyc_1AB], (instregex "^ABS[WX]")>;
-def : InstRW<[Ampere1BWrite_3cyc_1BS], (instregex "^CNT[WX]")>;
-def : InstRW<[Ampere1BWrite_1cyc_1B], (instregex "^CTZ[WX]")>;
-def : InstRW<[Ampere1BWrite_1cyc_1AB_1A], (instregex "^[SU](MAX|MIN)[WX]")>;
+def : InstRW<[Ampere1BWrite_1cyc_1AB], (instrs ABS)>;
+def : InstRW<[Ampere1BWrite_1cyc_1BS], (instrs CNT)>;
+def : InstRW<[Ampere1BWrite_1cyc_1AB_1A], (instrs SMAX, SMIN)>;
+def : InstRW<[Ampere1BWrite_1cyc_1B], (instrs CTZ)>;
+def : InstRW<[Ampere1BWrite_1cyc_1AB_1A], (instrs UMAX, USMIN)>;
 
 // Cryptography instructions
 // -- AES encryption/decryption
@@ -680,7 +593,7 @@ def : InstRW<[Ampere1BWrite_2cyc_1Y], (instregex "^SHA1SU[01]")>;
 def : InstRW<[Ampere1BWrite_2cyc_1Y], (instregex "^SHA1H")>;
 // -- SM3 hash
 def : InstRW<[Ampere1BWrite_2cyc_1XY],
-    (instregex "^SM3PARTW[12]$", "^SM3SS1$", "^SM3TT[12][AB]$")>;
+    (instregex "^SM3PARTW[12]$", "^SM3SS1$", "^SM3TT[12][AB]$"0)>;
 def : InstRW<[Ampere1BWrite_4cyc_1X], (instrs SM4E, SM4ENCKEY)>;
 
 // FP and vector load instructions
@@ -814,7 +727,7 @@ def : InstRW<[Ampere1BWrite_3cyc_2S_2Z], (instregex "^STN?PQ")>;
 // -- Store pair, S/D-form
 def : InstRW<[Ampere1BWrite_3cyc_2S_2Z], (instregex "^STN?P[SD]")>;
 // -- Store register
-def : InstRW<[Ampere1BWrite_2cyc_1S_1Z], (instregex "^STU?R[BHSDQ](ui|i)")>;
+def : InstRW<[Ampere1BWrite_2cyc_1S_2Z], (instregex "^STU?R[BHSDQ](ui|i)")>;
 // -- Store register, sign-extended register offset
 def : InstRW<[Ampere1BWrite_2cyc_1S_1Z], (instregex "^STR[BHSDQ]ro[XW]")>;
 
@@ -890,8 +803,7 @@ def : InstRW<[Ampere1BWrite_3cyc_1XY], (instregex "^F(MAX|MIN)(NM)?P?v.[if](32|6
 def : InstRW<[Ampere1BWrite_6cyc_2XY], (instregex "^F(MAX|MIN)(NM)?Vv.[if](32|64)")>;
 def : InstRW<[Ampere1BWrite_4cyc_1XY], (instregex "^FMULX?v.[if](32|64)")>;
 def : InstRW<[Ampere1BWrite_4cyc_1XY], (instrs FMULX32, FMULX64)>;
-def : InstRW<[Ampere1BWrite_4cyc_1XY], (instrs FMULSrr, FNMULSrr)>;
-def : InstRW<[Ampere1BWrite_4cyc_1XY], (instrs FMULDrr, FNMULDrr)>;
+def : InstRW<[Ampere1BWrite_4cyc_1XY], (instregex "^FN?MUL")>;
 def : InstRW<[Ampere1BWrite_4cyc_1XY], (instregex "^FN?M(ADD|SUB)[SD]rrr")>;
 def : InstRW<[Ampere1BWrite_4cyc_1XY], (instregex "^FML[AS]v.[if](32|64)")>;
 def : InstRW<[Ampere1BWrite_3cyc_1XY], (instregex "^FRECPXv.[if](32|64)")>;
@@ -1015,7 +927,7 @@ def : InstRW<[Ampere1BWrite_1cyc_1AB], (instrs SUBPS)>;
 // Insert Tag Mask
 def : InstRW<[Ampere1BWrite_1cyc_1AB], (instrs GMI)>;
 // Arithmetic, immediate to logical address tag
-def : InstRW<[Ampere1BWrite_1cyc_1B], (instrs ADDG, SUBG)>;
+def : InstRW<[Ampere1BWrite_1cyc_B], (instrs ADDG, SUBG)>;
 
 // Pointer authentication
 def : InstRW<[Ampere1BWrite_5cyc_1BS], (instregex "^AUT")>;
@@ -1088,30 +1000,30 @@ def : InstRW<[Ampere1BWrite_6cyc_2XY],
 def : InstRW<[Ampere1BWrite_3cyc_1XY],
         (instrs SMMLA, UMMLA, USMMLA)>;
 // -- max/min
-def : InstRW<[Ampere1BWrite_2cyc_1XY],
+def : InstRW<[Ampere1Write_2cyc_1XY],
         (instregex "^SMAXv", "^SMINv", "^UMAXv", "^UMINv")>;
-def : InstRW<[Ampere1BWrite_2cyc_1XY],
+def : InstRW<[Ampere1Write_2cyc_1XY],
         (instregex "^SMAXPv", "^SMINPv", "^UMAXPv", "^UMINPv")>;
 // -- move immediate
-def : InstRW<[Ampere1BWrite_2cyc_1XY], (instregex "^MOVIv", "^MVNIv")>;
+def : InstRW<[Ampere1Write_2cyc_1XY], (instregex "^MOVIv", "^MVNIv")>;
 // -- multiply
-def : InstRW<[Ampere1BWrite_3cyc_1XY],
+def : InstRW<[Ampere1Write_3cyc_1XY],
         (instregex "MULv", "SMULLv", "UMULLv", "SQDMUL(H|L)v", "SQRDMULHv")>;
 // -- multiply accumulate
-def : InstRW<[Ampere1BWrite_3cyc_1XY],
+def : InstRW<[Ampere1Write_3cyc_1XY],
         (instregex "MLAv", "MLSv", "(S|U|SQD)(MLAL|MLSL)v", "SQRDML(A|S)Hv")>;
 // -- negation, saturating
-def : InstRW<[Ampere1BWrite_2cyc_1XY], (instregex "^SQABS", "^SQNEG")>;
+def : InstRW<[Ampere1Write_2cyc_1XY], (instregex "^SQABS", "^SQNEG")>;
 // -- reverse bits/bytes
-def : InstRW<[Ampere1BWrite_2cyc_1XY],
+def : InstRW<[Ampere1Write_2cyc_1XY],
         (instregex "^RBITv", "^REV16v", "^REV32v", "^REV64v")>;
 // -- shift
-def : InstRW<[Ampere1BWrite_2cyc_1XY], (instregex "^[SU]SHL(v16i8|v8i16|v4i32|v2i64)")>;
+def : InstRW<[Ampere1Write_2cyc_1XY], (instregex "^[SU]SHL(v16i8|v8i16|v4i32|v2i64)")>;
 // -- shift and accumulate
-def : InstRW<[Ampere1BWrite_2cyc_1XY],
+def : InstRW<[Ampere1Write_2cyc_1XY],
         (instregex "SRSRAv", "SSRAv", "URSRAv", "USRAv")>;
 // -- shift, saturating
-def : InstRW<[Ampere1BWrite_2cyc_1XY],
+def : InstRW<[Ampere1Write_2cyc_1XY],
         (instregex "^SQRSHLv", "^SQRSHRNv", "^SQRSHRUNv", "^SQSHL", "^SQSHLU",
                    "^SQXTNv", "^SQXTUNv", "^UQSHRNv", "UQRSHRNv", "^UQRSHL",
                    "^UQSHL")>;
@@ -1141,9 +1053,9 @@ def : InstRW<[Ampere1BWrite_6cyc_3XY],
 def : InstRW<[Ampere1BWrite_8cyc_4XY],
             (instrs TBLv8i8Four, TBLv16i8Four, TBXv8i8Four, TBXv16i8Four)>;
 // -- transpose
-def : InstRW<[Ampere1BWrite_2cyc_1XY],
+def : InstRW<[Ampere1Write_2cyc_1XY],
               (instregex "^TRN1v", "^TRN2v", "^UZP1v", "^UZP2v")>;
 // -- zip/unzip
-def : InstRW<[Ampere1BWrite_2cyc_1XY], (instregex "^ZIP1v", "^ZIP2v")>;
+def : InstRW<[Ampere1Write_2cyc_1XY], (instregex "^ZIP1v", "^ZIP2v")>;
 
 } // SchedModel = Ampere1BModel
