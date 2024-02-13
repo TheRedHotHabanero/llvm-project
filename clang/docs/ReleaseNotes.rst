@@ -245,25 +245,8 @@ C23 Feature Support
 Non-comprehensive list of changes in this release
 -------------------------------------------------
 
-* Clang now has a ``__builtin_vectorelements()`` function that determines the number of elements in a vector.
-  For fixed-sized vectors, e.g., defined via ``__attribute__((vector_size(N)))`` or ARM NEON's vector types
-  (e.g., ``uint16x8_t``), this returns the constant number of elements at compile-time.
-  For scalable vectors, e.g., SVE or RISC-V V, the number of elements is not known at compile-time and is
-  determined at runtime.
-* The ``__datasizeof`` keyword has been added. It is similar to ``sizeof``
-  except that it returns the size of a type ignoring tail padding.
-* ``__builtin_classify_type()`` now classifies ``_BitInt`` values as the return value ``18``
-  and vector types as return value ``19``, to match GCC 14's behavior.
-* The default value of `_MSC_VER` was raised from 1920 to 1933.
-* Since MSVC 19.33 added undocumented attribute ``[[msvc::constexpr]]``, this release adds the attribute as well.
-
-* Added ``#pragma clang fp reciprocal``.
-
-* The version of Unicode used by Clang (primarily to parse identifiers) has been updated to 15.1.
-
-* Clang now defines macro ``__LLVM_INSTR_PROFILE_GENERATE`` when compiling with
-  PGO instrumentation profile generation, and ``__LLVM_INSTR_PROFILE_USE`` when
-  compiling with PGO profile use.
+- Added ``__builtin_readsteadycounter`` for reading fixed frequency hardware
+  counters.
 
 New Compiler Flags
 ------------------
