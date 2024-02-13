@@ -940,35 +940,7 @@ X86 Support
 Arm and AArch64 Support
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-- C++ function name mangling has been changed to align with the specification
-  (https://github.com/ARM-software/abi-aa/blob/main/aapcs64/aapcs64.rst).
-  This affects C++ functions with SVE ACLE parameters. Clang will use the old
-  manglings if ``-fclang-abi-compat=17`` or lower is  specified.
-
-- New AArch64 asm constraints have been added for r8-r11(Uci) and r12-r15(Ucj).
-
-- Support has been added for the following processors (-mcpu identifiers in parenthesis):
-
-  For Arm:
-
-  * Cortex-M52 (cortex-m52).
-
-  For AArch64:
-
-  * Cortex-A520 (cortex-a520).
-  * Cortex-A720 (cortex-a720).
-  * Cortex-X4 (cortex-x4).
-
-- Alpha support has been added for SVE2.1 intrinsics.
-
-- Support has been added for `-fstack-clash-protection` and `-mstack-probe-size`
-  command line options.
-
-- Function Multi Versioning has been extended to support Load-Acquire RCpc
-  instructions v3 (rcpc3) as well as Memory Copy and Memory Set Acceleration
-  instructions (mops) when targeting AArch64. The feature identifiers (in
-  parenthesis) can be used with either of the ``target_version`` and
-  ``target_clones`` attributes.
+- Fixed the incorrect definition of the __ARM_ARCH macro for architectures greater than or equal to v8.1.
 
 Android Support
 ^^^^^^^^^^^^^^^
