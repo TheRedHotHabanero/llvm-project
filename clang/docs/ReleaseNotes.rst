@@ -171,13 +171,25 @@ AST Dumping Potentially Breaking Changes
 
 Clang Frontend Potentially Breaking Changes
 -------------------------------------------
-- Target OS macros extension
-  A new Clang extension (see :ref:`here <target_os_detail>`) is enabled for
-  Darwin (Apple platform) targets. Clang now defines ``TARGET_OS_*`` macros for
-  these targets, which could break existing code bases with improper checks for
-  the ``TARGET_OS_`` macros. For example, existing checks might fail to include
-  the ``TargetConditionals.h`` header from Apple SDKs and therefore leaving the
-  macros undefined and guarded code unexercised.
+- Removed support for constructing on-stack ``TemplateArgumentList``s; interfaces should instead
+  use ``ArrayRef<TemplateArgument>`` to pass template arguments. Transitioning internal uses to
+  ``ArrayRef<TemplateArgument>`` reduces AST memory usage by 0.4% when compiling clang, and is
+  expected to show similar improvements on other workloads.
+
+- The ``-Wgnu-binary-literal`` diagnostic group no longer controls any
+  diagnostics. Binary literals are no longer a GNU extension, they're now a C23
+  extension which is controlled via ``-pedantic`` or ``-Wc23-extensions``. Use
+  of ``-Wno-gnu-binary-literal`` will no longer silence this pedantic warning,
+  which may break existing uses with ``-Werror``.
+
+Target OS macros extension
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+A new Clang extension (see :ref:`here <target_os_detail>`) is enabled for
+Darwin (Apple platform) targets. Clang now defines ``TARGET_OS_*`` macros for
+these targets, which could break existing code bases with improper checks for
+the ``TARGET_OS_`` macros. For example, existing checks might fail to include
+the ``TargetConditionals.h`` header from Apple SDKs and therefore leaving the
+macros undefined and guarded code unexercised.
 
   Affected code should be checked to see if it's still intended for the specific
   target and fixed accordingly.
@@ -241,6 +253,8 @@ C Language Changes
 
 C23 Feature Support
 ^^^^^^^^^^^^^^^^^^^
+- No longer diagnose use of binary literals as an extension in C23 mode. Fixes
+  `#72017 <https://github.com/llvm/llvm-project/issues/72017>`_.
 
 Non-comprehensive list of changes in this release
 -------------------------------------------------
