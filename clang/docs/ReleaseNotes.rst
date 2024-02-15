@@ -1044,6 +1044,8 @@ Fixed Point Support in Clang
 AST Matchers
 ------------
 
+- ``isInStdNamespace`` now supports Decl declared with ``extern "C++"``.
+
 clang-format
 ------------
 
