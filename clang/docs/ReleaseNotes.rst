@@ -353,6 +353,8 @@ Modified Compiler Flags
 Removed Compiler Flags
 -------------------------
 
+- The ``-freroll-loops`` flag has been removed. It had no effect since Clang 13.
+
 Attribute Changes in Clang
 --------------------------
 - On X86, a warning is now emitted if a function with ``__attribute__((no_caller_saved_registers))``
