@@ -182,21 +182,6 @@ Clang Frontend Potentially Breaking Changes
   of ``-Wno-gnu-binary-literal`` will no longer silence this pedantic warning,
   which may break existing uses with ``-Werror``.
 
-Target OS macros extension
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-A new Clang extension (see :ref:`here <target_os_detail>`) is enabled for
-Darwin (Apple platform) targets. Clang now defines ``TARGET_OS_*`` macros for
-these targets, which could break existing code bases with improper checks for
-the ``TARGET_OS_`` macros. For example, existing checks might fail to include
-the ``TargetConditionals.h`` header from Apple SDKs and therefore leaving the
-macros undefined and guarded code unexercised.
-
-  Affected code should be checked to see if it's still intended for the specific
-  target and fixed accordingly.
-
-  The extension can be turned off by the option ``-fno-define-target-os-macros``
-  as a workaround.
-
 What's New in Clang |release|?
 ==============================
 Some of the major new features and improvements to Clang are listed
@@ -284,55 +269,6 @@ Non-comprehensive list of changes in this release
 
 New Compiler Flags
 ------------------
-
-* ``-fverify-intermediate-code`` and its complement ``-fno-verify-intermediate-code``.
-  Enables or disables verification of the generated LLVM IR.
-  Users can pass this to turn on extra verification to catch certain types of
-  compiler bugs at the cost of extra compile time.
-  Since enabling the verifier adds a non-trivial cost of a few percent impact on
-  build times, it's disabled by default, unless your LLVM distribution itself is
-  compiled with runtime checks enabled.
-* ``-fkeep-system-includes`` modifies the behavior of the ``-E`` option,
-  preserving ``#include`` directives for "system" headers instead of copying
-  the preprocessed text to the output. This can greatly reduce the size of the
-  preprocessed output, which can be helpful when trying to reduce a test case.
-* ``-fassume-nothrow-exception-dtor`` is added to assume that the destructor of
-  a thrown exception object will not throw. The generated code for catch
-  handlers will be smaller. A throw expression of a type with a
-  potentially-throwing destructor will lead to an error.
-
-* ``-fopenacc`` was added as a part of the effort to support OpenACC in Clang.
-
-* ``-fcx-limited-range`` enables the naive mathematical formulas for complex
-  division and multiplication with no NaN checking of results. The default is
-  ``-fno-cx-limited-range``, but this option is enabled by ``-ffast-math``.
-
-* ``-fcx-fortran-rules`` enables the naive mathematical formulas for complex
-  multiplication and enables application of Smith's algorithm for complex
-  division. See SMITH, R. L. Algorithm 116: Complex division. Commun. ACM 5, 8
-  (1962). The default is ``-fno-cx-fortran-rules``.
-
-* ``-fvisibility-global-new-delete=<value>`` gives more freedom to users to
-  control how and if Clang forces a visibility for the replaceable new and
-  delete declarations. The option takes 4 values: ``force-hidden``,
-  ``force-protected``, ``force-default`` and ``source``; ``force-default`` is
-  the default. Option values with prefix ``force-`` assign such declarations
-  an implicit visibility attribute with the corresponding visibility. An option
-  value of ``source`` implies that no implicit attribute is added. Without the
-  attribute the replaceable global new and delete operators behave normally
-  (like other functions) with respect to visibility attributes, pragmas and
-  options (e.g ``--fvisibility=``).
-* Full register names can be used when printing assembly via ``-mregnames``.
-  This option now matches the one used by GCC.
-
-.. _target_os_detail:
-
-* ``-fdefine-target-os-macros`` and its complement
-  ``-fno-define-target-os-macros``. Enables or disables the Clang extension to
-  provide built-in definitions of a list of ``TARGET_OS_*`` macros based on the
-  target triple.
-
-  The extension is enabled by default for Darwin (Apple platform) targets.
 
 Deprecated Compiler Flags
 -------------------------
