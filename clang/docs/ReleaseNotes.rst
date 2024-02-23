@@ -892,6 +892,10 @@ Bug Fixes to C++ Support
   (`#82258 <https://github.com/llvm/llvm-project/issues/82258>`_)
 - Correctly immediate-escalate lambda conversion functions.
   (`#82258 <https://github.com/llvm/llvm-project/issues/82258>`_)
+- Fixed an issue where template parameters of a nested abbreviated generic lambda within
+  a requires-clause lie at the same depth as those of the surrounding lambda. This,
+  in turn, results in the wrong template argument substitution during constraint checking.
+  (`#78524 <https://github.com/llvm/llvm-project/issues/78524>`_)
 
 - Fix incorrect code generation caused by the object argument of ``static operator()`` and ``static operator[]`` calls not being evaluated.
   Fixes (`#67976 <https://github.com/llvm/llvm-project/issues/67976>`_)
