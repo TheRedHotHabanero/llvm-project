@@ -696,6 +696,8 @@ Bug Fixes to C++ Support
   templates when determining the primary template of an explicit specialization.
 - Fixed a crash in Microsoft compatibility mode where unqualified dependent base class
   lookup searches the bases of an incomplete class.
+- Fix a crash when an unresolved overload set is encountered on the RHS of a ``.*`` operator.
+  (`#53815 <https://github.com/llvm/llvm-project/issues/53815>`_)
 
 - Fix incorrect code generation caused by the object argument of ``static operator()`` and ``static operator[]`` calls not being evaluated.
   Fixes (`#67976 <https://github.com/llvm/llvm-project/issues/67976>`_)
