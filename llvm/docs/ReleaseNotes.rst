@@ -184,39 +184,9 @@ Changes to the LLVM tools
   files using reference types and GC are also supported (but also only for
   functions, globals, and data, and only for listing symbols and names).
 
-* llvm-symbolizer now treats invalid input as an address for which source
-  information is not found.
-* Fixed big-endian support in llvm-symbolizer's DWARF location parser.
-* llvm-readelf now supports ``--extra-sym-info`` (``-X``) to display extra
-  information (section name) when showing symbols.
-
-* ``llvm-nm`` now supports the ``--line-numbers`` (``-l``) option to use
-  debugging information to print symbols' filenames and line numbers.
-
-* llvm-symbolizer and llvm-addr2line now support addresses specified as symbol names.
-
-* llvm-objcopy now supports ``--gap-fill`` and ``--pad-to`` options, for
-  ELF input and binary output files only.
-
-* Supported parsing XCOFF auxiliary symbols in obj2yaml.
-
-* ``llvm-ranlib`` now supports ``-X`` on AIX to specify the type of object file
-  ranlib should examine.
-
-* ``llvm-nm`` now supports ``--export-symbol`` to ignore the import symbol file.
-
-* llvm-rc and llvm-windres now accept file path references in ``.rc`` files
-  concatenated from multiple string literals.
-
-* The llvm-windres option ``--preprocessor`` now resolves its argument
-  in the PATH environment variable as expected, and options passed with
-  ``--preprocessor-arg`` are placed before the input file as they should
-  be.
-
-* The llvm-windres option ``--preprocessor`` has been updated with the
-  breaking behaviour change from GNU windres from binutils 2.36, where
-  the whole argument is considered as one path, not considered as a
-  sequence of tool name and parameters.
+* llvm-ar now utilizes LLVM_DEFAULT_TARGET_TRIPLE to determine the archive format
+  if it's not specified with the ``--format`` argument and cannot be inferred from
+  input files.
 
 Changes to LLDB
 ---------------------------------
