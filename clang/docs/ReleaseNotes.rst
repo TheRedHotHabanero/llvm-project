@@ -706,6 +706,9 @@ Bug Fixes to C++ Support
   Fixes (`#82941 <https://github.com/llvm/llvm-project/issues/82941>`_),
   (`#42411 <https://github.com/llvm/llvm-project/issues/42411>`_), and
   (`#18121 <https://github.com/llvm/llvm-project/issues/18121>`_).
+- Clang now properly reports supported C++11 attributes when using
+  ``__has_cpp_attribute`` and parses attributes with arguments in C++03
+  (`#82995 <https://github.com/llvm/llvm-project/issues/82995>`_)
 
 - Fix incorrect code generation caused by the object argument of ``static operator()`` and ``static operator[]`` calls not being evaluated.
   Fixes (`#67976 <https://github.com/llvm/llvm-project/issues/67976>`_)
