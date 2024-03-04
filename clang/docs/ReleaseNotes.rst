@@ -700,7 +700,7 @@ Bug Fixes to C++ Support
 - Clang now properly diagnoses missing 'default' template arguments on a variety
   of templates. Previously we were diagnosing on any non-function template
   instead of only on class, alias, and variable templates, as last updated by
-  CWG2032. Fixes (#GH#83461)
+  CWG2032. Fixes (#GH83461)
 
 
 - Fix incorrect code generation caused by the object argument of ``static operator()`` and ``static operator[]`` calls not being evaluated.
