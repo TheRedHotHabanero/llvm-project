@@ -99,50 +99,8 @@ C/C++ Language Potentially Breaking Changes
 
 C++ Specific Potentially Breaking Changes
 -----------------------------------------
-- The name mangling rules for function templates has been changed to take into
-  account the possibility that functions could be overloaded on their template
-  parameter lists or requires-clauses. This causes mangled names to change for
-  function templates in the following cases:
-
-  - When a template parameter in a function template depends on a previous
-    template parameter, such as ``template<typename T, T V> void f()``.
-  - When the function has any constraints, whether from constrained template
-      parameters or requires-clauses.
-  - When the template parameter list includes a deduced type -- either
-      ``auto``, ``decltype(auto)``, or a deduced class template specialization
-      type.
-  - When a template template parameter is given a template template argument
-      that has a different template parameter list.
-
-  This fixes a number of issues where valid programs would be rejected due to
-  mangling collisions, or would in some cases be silently miscompiled. Clang
-  will use the old manglings if ``-fclang-abi-compat=17`` or lower is
-  specified.
-  (`#48216 <https://github.com/llvm/llvm-project/issues/48216>`_),
-  (`#49884 <https://github.com/llvm/llvm-project/issues/49884>`_), and
-  (`#61273 <https://github.com/llvm/llvm-project/issues/61273>`_)
-
-- The `ClassScopeFunctionSpecializationDecl` AST node has been removed.
-  Dependent class scope explicit function template specializations now use
-  `DependentFunctionTemplateSpecializationInfo` to store candidate primary
-  templates and explicit template arguments. This should not impact users of
-  Clang as a compiler, but it may break assumptions in Clang-based tools
-  iterating over the AST.
-
-- The warning `-Wenum-constexpr-conversion` is now also enabled by default on
-  system headers and macros. It will be turned into a hard (non-downgradable)
-  error in the next Clang release.
-
-- The flag `-fdelayed-template-parsing` won't be enabled by default with C++20
-  when targetting MSVC to match the behavior of MSVC.
-  (`MSVC Docs <https://learn.microsoft.com/en-us/cpp/build/reference/permissive-standards-conformance?view=msvc-170>`_)
-
-- Remove the hardcoded path to the imported modules for C++20 named modules. Now we
-  require all the dependent modules to specified from the command line.
-  See (`#62707 <https://github.com/llvm/llvm-project/issues/62707>`_).
-
-- Forbid `import XXX;` in C++ to find module `XXX` comes from explicit clang modules.
-  See (`#64755 <https://github.com/llvm/llvm-project/issues/64755>`_).
+- Clang now diagnoses function/variable templates that shadow their own template parameters, e.g. ``template<class T> void T();``.
+  This error can be disabled via `-Wno-strict-primary-template-shadow` for compatibility with previous versions of clang.
 
 ABI Changes in This Version
 ---------------------------
