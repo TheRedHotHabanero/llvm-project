@@ -661,7 +661,7 @@ Bug Fixes to C++ Support
   CWG2032. Fixes (#GH83461)
 - Fixed an issue where an attribute on a declarator would cause the attribute to
   be destructed prematurely. This fixes a pair of Chromium that were brought to
-  our attention by an attempt to fix in (#GH77703). Fixes (#GH83611).
+  our attention by an attempt to fix in (#GH77703). Fixes (#GH83385).
 
 - Fix incorrect code generation caused by the object argument of ``static operator()`` and ``static operator[]`` calls not being evaluated.
   Fixes (`#67976 <https://github.com/llvm/llvm-project/issues/67976>`_)
