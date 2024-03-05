@@ -662,6 +662,8 @@ Bug Fixes to C++ Support
 - Fixed an issue where an attribute on a declarator would cause the attribute to
   be destructed prematurely. This fixes a pair of Chromium that were brought to
   our attention by an attempt to fix in (#GH77703). Fixes (#GH83385).
+- Fix evaluation of some immediate calls in default arguments.
+  Fixes (#GH80630)
 
 - Fix incorrect code generation caused by the object argument of ``static operator()`` and ``static operator[]`` calls not being evaluated.
   Fixes (`#67976 <https://github.com/llvm/llvm-project/issues/67976>`_)
