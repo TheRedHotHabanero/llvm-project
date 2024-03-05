@@ -669,6 +669,8 @@ Bug Fixes to C++ Support
   our attention by an attempt to fix in (#GH77703). Fixes (#GH83385).
 - Fix evaluation of some immediate calls in default arguments.
   Fixes (#GH80630)
+- Fix a crash when an explicit template argument list is used with a name for which lookup
+  finds a non-template function and a dependent using declarator.
 
 - Fix incorrect code generation caused by the object argument of ``static operator()`` and ``static operator[]`` calls not being evaluated.
   Fixes (`#67976 <https://github.com/llvm/llvm-project/issues/67976>`_)
