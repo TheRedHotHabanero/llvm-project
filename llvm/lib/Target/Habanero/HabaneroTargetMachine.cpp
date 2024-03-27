@@ -1,5 +1,5 @@
-#include "HabaneroTargetMachine.h"
-#include "TargetInfo/HabaneroTargetInfo.h"
+#include <optional>
+
 #include "llvm/CodeGen/Passes.h"
 #include "llvm/CodeGen/TargetLoweringObjectFileImpl.h"
 #include "llvm/CodeGen/TargetPassConfig.h"
@@ -7,11 +7,15 @@
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/Support/CodeGen.h"
 #include "llvm/Transforms/Scalar.h"
-#include <optional>
+
+#include "Habanero.h"
+#include "HabaneroTargetMachine.h"
+#include "TargetInfo/HabaneroTargetInfo.h"
 
 using namespace llvm;
 
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeHabaneroTarget() {
+  HABANERO_DUMP_LOCATION();
   // Register the target
   RegisterTargetMachine<HabaneroTargetMachine> reg_habanero_machine(getHabaneroTarget());
 }
@@ -41,6 +45,7 @@ HabaneroTargetMachine::HabaneroTargetMachine(const Target &T, const Triple &TT,
                         CPU, FS, Options, getEffectiveRelocModel(JIT, RM),
                         getEffectiveCodeModel(CM, CodeModel::Small), OL),
       TLOF(std::make_unique<TargetLoweringObjectFileELF>()) {
+  HABANERO_DUMP_LOCATION();
   initAsmInfo();
 }
 

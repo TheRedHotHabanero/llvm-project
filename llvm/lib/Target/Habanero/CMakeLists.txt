@@ -1,7 +1,14 @@
 add_llvm_component_group(Habanero)
 
+set(LLVM_TARGET_DEFINITIONS Habanero.td)
+
+tablegen(LLVM HabaneroGenRegisterInfo.inc -gen-register-info)
+
+add_public_tablegen_target(HabaneroCommonTableGen)
+
 add_llvm_target(HabaneroCodeGen
     HabaneroTargetMachine.cpp
+    HabaneroRegisterInfo.cpp
 
     LINK_COMPONENTS
     CodeGen
