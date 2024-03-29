@@ -11,9 +11,6 @@
 
 namespace llvm {
 
-// General purpose Habanero subtarget
-class HabaneroSubtargetA;
-
 struct HabaneroInstrInfo : public HabaneroGenInstrInfo {
   HabaneroInstrInfo();
 };

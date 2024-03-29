@@ -1,13 +1,14 @@
 // Habanero target descriptions
 
-#include "llvm/MC/MCRegisterInfo.h"
-#include "llvm/MC/TargetRegistry.h"
 #include "llvm/MC/MCInstrInfo.h"
+#include "llvm/MC/MCRegisterInfo.h"
+#include "llvm/MC/MCSubtargetInfo.h"
+#include "llvm/MC/TargetRegistry.h"
 
 #include "Habanero.h"
-#include "TargetInfo/HabaneroTargetInfo.h"
 #include "HabaneroMCTargetDesc.h"
 #include "MCTargetDesc/HabaneroInfo.h"
+#include "TargetInfo/HabaneroTargetInfo.h"
 
 using namespace llvm;
 
@@ -17,7 +18,10 @@ using namespace llvm;
 #define GET_INSTRINFO_MC_DESC
 #include "HabaneroGenInstrInfo.inc"
 
-static MCRegisterInfo *createHabaneroMCRegisterInfo(const Triple &t) {
+#define GET_SUBTARGETINFO_MC_DESC
+#include "HabaneroGenSubtargetInfo.inc"
+
+static MCRegisterInfo *createHabaneroMCRegisterInfo(const Triple &TT) {
   HABANERO_DUMP_LOCATION();
 
   MCRegisterInfo *reg_info = new MCRegisterInfo();
@@ -33,6 +37,13 @@ static MCInstrInfo *createHabaneroMCInstrInfo() {
   return instr_info;
 }
 
+static MCSubtargetInfo *createHabaneroMCSubtargetInfo(const Triple &TT,
+                                                  StringRef CPU, StringRef FS) {
+  HABANERO_DUMP_LOCATION();
+
+  return createHabaneroMCSubtargetInfoImpl(TT, CPU, /* TuneCPU */ CPU, FS);
+}
+
 // We need to define this function for linking succeed
 extern "C" void LLVMInitializeHabaneroTargetMC() {
   HABANERO_DUMP_LOCATION();
@@ -43,4 +54,7 @@ extern "C" void LLVMInitializeHabaneroTargetMC() {
   TargetRegistry::RegisterMCRegInfo(habanero_target, createHabaneroMCRegisterInfo);
   // Register MC instruction info.
   TargetRegistry::RegisterMCInstrInfo(habanero_target, createHabaneroMCInstrInfo);
+  // Register the MC subtarget info.
+  TargetRegistry::RegisterMCSubtargetInfo(habanero_target,
+                                          createHabaneroMCSubtargetInfo);
 }
