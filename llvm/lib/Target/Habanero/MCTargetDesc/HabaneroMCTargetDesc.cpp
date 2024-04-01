@@ -1,11 +1,14 @@
 // Habanero target descriptions
 
+#include "llvm/MC/MCDwarf.h"
 #include "llvm/MC/MCInstrInfo.h"
 #include "llvm/MC/MCRegisterInfo.h"
 #include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/ErrorHandling.h"
 
 #include "Habanero.h"
+#include "HabaneroMCAsmInfo.h"
 #include "HabaneroMCTargetDesc.h"
 #include "MCTargetDesc/HabaneroInfo.h"
 #include "TargetInfo/HabaneroTargetInfo.h"
@@ -44,6 +47,18 @@ static MCSubtargetInfo *createHabaneroMCSubtargetInfo(const Triple &TT,
   return createHabaneroMCSubtargetInfoImpl(TT, CPU, /* TuneCPU */ CPU, FS);
 }
 
+static MCAsmInfo *createHabaneroMCAsmInfo(const MCRegisterInfo &MRI,
+                                      const Triple &TT,
+                                      const MCTargetOptions &Options) {
+  HABANERO_DUMP_LOCATION();
+
+  MCAsmInfo *MAI = new HabaneroELFMCAsmInfo(TT);
+  unsigned SP = MRI.getDwarfRegNum(Habanero::R1, true);
+  MCCFIInstruction Inst = MCCFIInstruction::cfiDefCfa(nullptr, SP, 0);
+  MAI->addInitialFrameState(Inst);
+  return MAI;
+}
+
 // We need to define this function for linking succeed
 extern "C" void LLVMInitializeHabaneroTargetMC() {
   HABANERO_DUMP_LOCATION();
@@ -54,7 +69,9 @@ extern "C" void LLVMInitializeHabaneroTargetMC() {
   TargetRegistry::RegisterMCRegInfo(habanero_target, createHabaneroMCRegisterInfo);
   // Register MC instruction info.
   TargetRegistry::RegisterMCInstrInfo(habanero_target, createHabaneroMCInstrInfo);
-  // Register the MC subtarget info.
+  // Register MC subtarget info.
   TargetRegistry::RegisterMCSubtargetInfo(habanero_target,
                                           createHabaneroMCSubtargetInfo);
+  // Register MC asm info
+  RegisterMCAsmInfoFn asm_info(habanero_target, createHabaneroMCAsmInfo);
 }
