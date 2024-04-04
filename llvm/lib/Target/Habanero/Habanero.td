@@ -4,6 +4,7 @@ include "llvm/Target/Target.td"
 
 include "HabaneroRegisterInfo.td"
 include "HabaneroInstrInfo.td"
+include "HabaneroCallingConv.td"
 
 class HabaneroProcessor<string Name, list<SubtargetFeature> Features>: Processor<Name, NoItineraries, Features>;
 

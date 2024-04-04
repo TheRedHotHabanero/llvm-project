@@ -5,6 +5,7 @@ set(LLVM_TARGET_DEFINITIONS Habanero.td)
 tablegen(LLVM HabaneroGenRegisterInfo.inc -gen-register-info)
 tablegen(LLVM HabaneroGenInstrInfo.inc -gen-instr-info)
 tablegen(LLVM HabaneroGenSubtargetInfo.inc -gen-subtarget)
+tablegen(LLVM HabaneroGenCallingConv.inc -gen-callingconv)
 
 add_public_tablegen_target(HabaneroCommonTableGen)
 
