@@ -6,7 +6,7 @@
 namespace llvm::HabaneroOp {
 
 enum OperandType : unsigned {
-  OPERAND_HABANERO_IMM20 = MCOI::OPERAND_FIRST_TARGET
+  OPERAND_SIMM16 = MCOI::OPERAND_FIRST_TARGET
 };
 
 } // namespace llvm::HabaneroOp
