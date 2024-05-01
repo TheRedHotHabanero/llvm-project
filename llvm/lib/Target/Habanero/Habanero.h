@@ -15,4 +15,13 @@
     llvm::errs().changeColor(llvm::raw_ostream::WHITE);                        \
   }
 
+namespace llvm {
+
+class HabaneroTargetMachine;
+class FunctionPass;
+
+FunctionPass *createHabaneroISelDag(HabaneroTargetMachine &TM);
+
+} // namespace llvm
+
 #endif // HABANERO_H
