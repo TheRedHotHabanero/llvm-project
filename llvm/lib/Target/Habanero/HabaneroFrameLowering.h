@@ -7,9 +7,11 @@
 
 namespace llvm {
 
+class HabaneroSubtarget;
+
 class HabaneroFrameLowering final : public TargetFrameLowering {
 public:
-  explicit HabaneroFrameLowering()
+  explicit HabaneroFrameLowering(const HabaneroSubtarget &STI)
       : TargetFrameLowering(TargetFrameLowering::StackGrowsDown, Align(4), 0) {
     HABANERO_DUMP_LOCATION();
   }

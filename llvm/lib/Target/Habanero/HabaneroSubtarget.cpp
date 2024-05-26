@@ -11,8 +11,9 @@ using namespace llvm;
 #define GET_SUBTARGETINFO_CTOR
 #include "HabaneroGenSubtargetInfo.inc"
 
-HabaneroSubtarget::HabaneroSubtarget(const StringRef &CPU, const StringRef &TuneCPU,
+HabaneroSubtarget::HabaneroSubtarget(const Triple &TT, const StringRef &CPU,
                              const StringRef &FS, const TargetMachine &TM)
-    : HabaneroGenSubtargetInfo(TM.getTargetTriple(), CPU, TuneCPU, FS) {
+    : HabaneroGenSubtargetInfo(TM.getTargetTriple(), CPU, /* TuneCPU = */ CPU, FS),
+      InstrInfo(), FrameLowering(*this), TLInfo(TM, *this) {
   HABANERO_DUMP_LOCATION();
 }

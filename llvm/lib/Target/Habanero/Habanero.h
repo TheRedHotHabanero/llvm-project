@@ -19,6 +19,16 @@ namespace llvm {
 
 class HabaneroTargetMachine;
 class FunctionPass;
+class MachineInstr;
+class MCInst;
+class AsmPrinter;
+class MachineOperand;
+class MCOperand;
+
+bool lowerHabaneroMachineInstrToMCInst(const MachineInstr *MI, MCInst &OutMI,
+                                   AsmPrinter &AP);
+bool lowerHabaneroMachineOperandToMCOperand(const MachineOperand &MO,
+                                        MCOperand &MCOp, const AsmPrinter &AP);
 
 FunctionPass *createHabaneroISelDag(HabaneroTargetMachine &TM);
 
