@@ -21,8 +21,7 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeHabaneroTarget() {
 }
 
 static std::string computeDataLayout(const Triple &TT, StringRef CPU,
-                                     const TargetOptions &Options,
-                                     bool IsLittle) {
+                                     const TargetOptions &Options) {
   std::string Ret = "e-m:e-p:32:32-i8:8:32-i16:16:32-n32";
   return Ret;
 }
@@ -39,24 +38,36 @@ HabaneroTargetMachine::HabaneroTargetMachine(const Target &T, const Triple &TT,
                                      const TargetOptions &Options,
                                      std::optional<Reloc::Model> RM,
                                      std::optional<CodeModel::Model> CM,
-                                     CodeGenOptLevel OL, bool JIT,
-                                     bool IsLittle)
-    : LLVMTargetMachine(T, computeDataLayout(TT, CPU, Options, IsLittle), TT,
-                        CPU, FS, Options, getEffectiveRelocModel(JIT, RM),
+                                     CodeGenOptLevel OL, bool JIT)
+    : LLVMTargetMachine(T, computeDataLayout(TT, CPU, Options), TT, CPU, FS,
+                        Options, getEffectiveRelocModel(JIT, RM),
                         getEffectiveCodeModel(CM, CodeModel::Small), OL),
-      TLOF(std::make_unique<TargetLoweringObjectFileELF>()) {
+      TLOF(std::make_unique<TargetLoweringObjectFileELF>()),
+      Subtarget(TT, std::string(CPU), std::string(FS), *this) {
   HABANERO_DUMP_LOCATION();
   initAsmInfo();
 }
 
-HabaneroTargetMachine::HabaneroTargetMachine(const Target &T, const Triple &TT,
-                                     StringRef CPU, StringRef FS,
-                                     const TargetOptions &Options,
-                                     std::optional<Reloc::Model> RM,
-                                     std::optional<CodeModel::Model> CM,
-                                     CodeGenOptLevel OL, bool JIT)
-    : HabaneroTargetMachine(T, TT, CPU, FS, Options, RM, CM, OL, JIT, true) {}
+namespace {
+
+/// Habanero Code Generator Pass Configuration Options.
+class HabaneroPassConfig : public TargetPassConfig {
+public:
+  HabaneroPassConfig(HabaneroTargetMachine &TM, PassManagerBase &PM)
+      : TargetPassConfig(TM, PM) {}
+
+  HabaneroTargetMachine &getHabaneroTargetMachine() const {
+    return getTM<HabaneroTargetMachine>();
+  }
+
+  bool addInstSelector() override {
+    addPass(createHabaneroISelDag(getHabaneroTargetMachine()));
+    return false;
+  }
+};
+
+} // end anonymous namespace
 
 TargetPassConfig *HabaneroTargetMachine::createPassConfig(PassManagerBase &PM) {
-  return new TargetPassConfig(*this, PM);
+  return new HabaneroPassConfig(*this, PM);
 }
