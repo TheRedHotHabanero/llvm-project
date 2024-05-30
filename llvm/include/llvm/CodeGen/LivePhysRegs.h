@@ -197,6 +197,8 @@ void computeAndAddLiveIns(LivePhysRegs &LiveRegs,
 /// any changes were made.
 static inline bool recomputeLiveIns(MachineBasicBlock &MBB) {
   LivePhysRegs LPR;
+  auto oldLiveIns = MBB.getLiveIns();
+
   MBB.clearLiveIns();
   computeAndAddLiveIns(LPR, MBB);
   MBB.sortUniqueLiveIns();
