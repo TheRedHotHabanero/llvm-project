@@ -42,3 +42,7 @@ chat](https://discord.gg/xS7Z362),
 
 The LLVM project has adopted a [code of conduct](https://llvm.org/docs/CodeOfConduct.html) for
 participants to all modes of communication within the project.
+
+cmake -S llvm/ -B build/ -GNinja -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_INSTALL_PREFIX=../INSTALL/ -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=On -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=Habanero
+
+ninja -C build/ -j 4
