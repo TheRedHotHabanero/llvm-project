@@ -7,6 +7,8 @@ tablegen(LLVM HabaneroGenInstrInfo.inc -gen-instr-info)
 tablegen(LLVM HabaneroGenSubtargetInfo.inc -gen-subtarget)
 tablegen(LLVM HabaneroGenCallingConv.inc -gen-callingconv)
 tablegen(LLVM HabaneroGenDAGISel.inc -gen-dag-isel)
+tablegen(LLVM HabaneroGenMCPseudoLowering.inc -gen-pseudo-lowering)
+tablegen(LLVM HabaneroGenAsmWriter.inc -gen-asm-writer)
 
 add_public_tablegen_target(HabaneroCommonTableGen)
 
@@ -17,12 +19,17 @@ add_llvm_target(HabaneroCodeGen
     HabaneroSubtarget.cpp
     HabaneroISelLowering.cpp
     HabaneroISelDagToDag.cpp
+    HabaneroMCInstLower.cpp
+    HabaneroAsmPrinter.cpp
 
     LINK_COMPONENTS
+    AsmPrinter
     CodeGen
     Core
     Support
     Target
+    MC
+    HabaneroDesc
     HabaneroInfo
     SelectionDAG
 

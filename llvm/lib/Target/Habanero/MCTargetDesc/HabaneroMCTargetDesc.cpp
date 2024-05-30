@@ -8,8 +8,10 @@
 #include "llvm/Support/ErrorHandling.h"
 
 #include "Habanero.h"
+#include "HabaneroInstPrinter.h"
 #include "HabaneroMCAsmInfo.h"
 #include "HabaneroMCTargetDesc.h"
+#include "HabaneroTargetStreamer.h"
 #include "MCTargetDesc/HabaneroInfo.h"
 #include "TargetInfo/HabaneroTargetInfo.h"
 
@@ -59,6 +61,23 @@ static MCAsmInfo *createHabaneroMCAsmInfo(const MCRegisterInfo &MRI,
   return MAI;
 }
 
+static MCInstPrinter *createHabaneroMCInstPrinter(const Triple &T,
+                                              unsigned SyntaxVariant,
+                                              const MCAsmInfo &MAI,
+                                              const MCInstrInfo &MII,
+                                              const MCRegisterInfo &MRI) {
+  return new HabaneroInstPrinter(MAI, MII, MRI);
+}
+
+HabaneroTargetStreamer::HabaneroTargetStreamer(MCStreamer &S) : MCTargetStreamer(S) {}
+
+static MCTargetStreamer *createTargetAsmStreamer(MCStreamer &S,
+                                                 formatted_raw_ostream &OS,
+                                                 MCInstPrinter *InstPrint,
+                                                 bool isVerboseAsm) {
+  return new HabaneroTargetStreamer(S);
+}
+
 // We need to define this function for linking succeed
 extern "C" void LLVMInitializeHabaneroTargetMC() {
   HABANERO_DUMP_LOCATION();
@@ -74,4 +93,9 @@ extern "C" void LLVMInitializeHabaneroTargetMC() {
                                           createHabaneroMCSubtargetInfo);
   // Register MC asm info
   RegisterMCAsmInfoFn asm_info(habanero_target, createHabaneroMCAsmInfo);
+
+  // Register the MCInstPrinter
+  TargetRegistry::RegisterMCInstPrinter(habanero_target, createHabaneroMCInstPrinter);
+  TargetRegistry::RegisterAsmTargetStreamer(habanero_target,
+                                            createTargetAsmStreamer);
 }
